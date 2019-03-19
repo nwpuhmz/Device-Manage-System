@@ -88,7 +88,7 @@
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
         <template slot-scope="scope">
           <el-button type="primary" size="mini" @click="handleUpdate(scope.row)">编辑</el-button>
-          <el-button size="mini" type="danger" @click="handleModifyStatus(scope.row,'deleted')">删除</el-button>
+          <el-button size="mini" type="danger" @click="handleDelete(scope.row)">删除</el-button>
         </template>
       </el-table-column>      
     </el-table>
@@ -98,7 +98,7 @@
 </template>
 
 <script>
-import { getList } from '@/api/device'
+import { getList, deleteItem } from '@/api/device'
 import Pagination from '@/components/Pagination' // Secondary package based on el-pagination
 import { parseTime } from '@/utils'
 
@@ -136,23 +136,31 @@ export default {
   methods: {
     fetchData() {
       this.listLoading = true
-      getList(this.listQuery).then(response => {
-       
+      getList(this.listQuery).then(response => {      
         this.total = response.data.total
         this.list = response.data.list
-         console.log(this.list)
+        //console.log(this.list)
         this.listLoading = false
       })
     },
+    handleDelete(row) {
+      this.listLoading = true
+      deleteItem(row).then(response =>{
+         this.$message({
+            type: 'success',
+            message: '删除成功！'
+          });
+        this.listLoading = false
+        this.fetchData()
+      })
+    },
     handleCreate() {
-      this.$router.push({ path: '/manage/spec-pc/add'})
-      //this.resetTemp()
-      //this.dialogStatus = 'create'
-      //this.dialogFormVisible = true
-      // this.$nextTick(() => {
-      //   this.$refs['dataForm'].clearValidate()
-      // })
-    },    
+      this.$router.push({ name: 'SpecPcAdd', params: { item: {},isEdit: false}})
+    },
+    handleUpdate(row) {
+      //console.log(row)
+      this.$router.push({ name: 'SpecPcEdit', params: { item: row,isEdit: true}})
+    },        
   }
 }
 </script>

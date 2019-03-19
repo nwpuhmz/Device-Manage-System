@@ -45,10 +45,12 @@ export const constantRouterMap = [
     redirect: '/manage/spec-pc',
     name: 'Manage',
     meta: { title: '设备管理', icon: 'example' },
+    alwaysShow: true,
     children: [
       {
         path: 'spec-pc',
         name: 'SpecPC',
+        
         component: () => import('@/views/manage/spec-pc/index'),
         meta: { title: '专用机算机', icon: 'table' },
         // children: [
@@ -66,6 +68,13 @@ export const constantRouterMap = [
         component: () => import('@/views/manage/spec-pc/add'),
         name: 'SpecPcAdd',
         meta: { title: '新增' }
+      },
+      {
+        hidden: true,
+        path: 'spec-pc/edit',
+        component: () => import('@/views/manage/spec-pc/add'),
+        name: 'SpecPcEdit',
+        meta: { title: '修改' }
       }
       // {
       //   path: 'spec-pc',
