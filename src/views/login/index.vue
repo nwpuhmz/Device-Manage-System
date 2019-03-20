@@ -94,11 +94,11 @@ export default {
             this.loading = false
             this.$router.push({ path: this.redirect || '/' })
           }).catch(() => {
-            console.log("login error")
+            //console.log("login error")
             this.loading = false
           })
         } else {
-          console.log('error submit!!')
+          //console.log('error submit!!')
           return false
         }
       })

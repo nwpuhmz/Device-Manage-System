@@ -14,10 +14,16 @@ export function deleteItem(params) {
     params
   })
 }
-
 export function addItem(params) {
   return request({
     url: '/computer/special/add',
+    method: 'post',
+    params
+  })
+}
+export function updateItem(params) {
+  return request({
+    url: '/computer/special/update',
     method: 'post',
     params
   })

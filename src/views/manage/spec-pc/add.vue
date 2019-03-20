@@ -39,7 +39,7 @@
       </el-form-item>
       <el-form-item label="出厂时间">
         <el-col :span="11">
-          <el-date-picker  v-model="form.leaveFactoryDate" type="date" placeholder="选择出厂日期" style="width: 100%;"/>
+          <el-date-picker value-format="yyyy-MM-dd" v-model="form.leaveFactoryDate" type="date" placeholder="选择出厂日期" style="width: 100%;"/>
         </el-col>
       </el-form-item>
       <el-form-item label="厂家">
@@ -53,7 +53,7 @@
       </el-form-item>
       <el-form-item label="启用时间">
         <el-col :span="11">
-          <el-date-picker  v-model="form.startDate" type="date" placeholder="选择出厂日期" style="width: 100%;"/>
+          <el-date-picker  value-format="yyyy-MM-dd" v-model="form.startDate" type="date" placeholder="选择出厂日期" style="width: 100%;"/>
         </el-col>
       </el-form-item>
       <el-form-item label="原值">
@@ -64,7 +64,7 @@
       </el-form-item>
       <el-form-item label="操作系统安装日期">
         <el-col :span="11">
-          <el-date-picker  v-model="form.osInstallDate" type="date" placeholder="选择出厂日期" style="width: 100%;"/>
+          <el-date-picker  value-format="yyyy-MM-dd" v-model="form.osInstallDate" type="date" placeholder="选择出厂日期" style="width: 100%;"/>
         </el-col>
       </el-form-item>
       <el-form-item label="硬盘序列号">
@@ -115,13 +115,13 @@
 </template>
 
 <script>
-import { addItem } from '@/api/device'
+import { addItem ,updateItem} from '@/api/device'
 
 export default {
   data() {
     return {
       form: {
-        "category": undefined,
+        "category": '',
         "comments": '',
         "contractNumber": '',
         "country": '',
@@ -131,22 +131,22 @@ export default {
         "diskSn": '',
         "equipmentType": '',
         "fundingSources": '',
-        "id": undefined,
+        //"id": undefined,
         "installSite": '',
         "ip": '',
-        "leaveFactoryDate": undefined,
+        "leaveFactoryDate": new Date(),
         "mac": '',
         "machineNum": '',
         "manufactor": '',
         "orgName": '',
         "originalValue": '',
-        "osInstallDate": undefined,
+        "osInstallDate": new Date(),
         "osVersion": '',
         "projectAttr": '',
         "regNumber": '',
         "secretClass": '',
         "securityNum": '',
-        "startDate": undefined,
+        "startDate": new Date(),
         "sysCode": '',
         "sysName": '',
         "unifiedNum": '',
@@ -163,16 +163,26 @@ export default {
     onSubmit() {
       if(this.$route.params.isEdit == true)
       {
+        //const tempData = Object.assign({}, this.form) // copy obj
+        //this.tempData.leaveFactoryDate = new Date(tempData.leaveFactoryDate)
+        //this.tempData.osInstallDate = new Date(tempData.osInstallDate)
+        //this.tempData.startDate = new Date(tempData.startDate)
+
         this.$confirm('确定修改, 是否继续?', '提示', {
           confirmButtonText: '确定',
           cancelButtonText: '取消',
           type: 'warning'
         }).then(() => {
-          this.$message({
-            type: 'success',
-            message: '修改成功！'
-          });
-          this.$router.push({ name: 'SpecPC' })
+            this.listLoading = true
+            console.log('----',this.form)
+            updateItem(this.form).then(response =>{
+            this.$message({
+              type: 'success',
+              message: '修改成功！'
+            });
+            this.listLoading = false
+            this.$router.push({ name: 'SpecPC' })
+          })
         }).catch(() => {
           this.$message({
             type: 'info',
@@ -185,8 +195,8 @@ export default {
           cancelButtonText: '取消',
           type: 'warning'
         }).then(() => {
-                this.listLoading = true
-          addItem(this.form).then(response =>{
+            this.listLoading = true
+            addItem(this.form).then(response =>{
             this.$message({
               type: 'success',
               message: '新增成功！'
@@ -217,19 +227,19 @@ export default {
         "fundingSources": '',
         "installSite": '',
         "ip": '',
-        "leaveFactoryDate": undefined,
+        "leaveFactoryDate": new Date(),
         "mac": '',
         "machineNum": '',
         "manufactor": '',
         "orgName": '',
         "originalValue": '',
-        "osInstallDate": undefined,
+        "osInstallDate": new Date(),
         "osVersion": '',
         "projectAttr": '',
         "regNumber": '',
         "secretClass": '',
         "securityNum": '',
-        "startDate": undefined,
+        "startDate": new Date(),
         "sysCode": '',
         "sysName": '',
         "unifiedNum": '',

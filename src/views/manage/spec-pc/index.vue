@@ -1,19 +1,11 @@
 <template>
   <div class="app-container">
     <div class="filter-container">
-      <!-- <el-input placeholder="国资编号" v-model="listQuery.title" style="width: 200px;" class="filter-item" @keyup.enter.native="handleFilter"/>
-      <el-select v-model="listQuery.importance" placeholder=" " clearable style="width: 90px" class="filter-item">
-        <el-option v-for="item in importanceOptions" :key="item" :label="item" :value="item"/>
-      </el-select>
-      <el-select v-model="listQuery.type" placeholder=" " clearable class="filter-item" style="width: 130px">
-        <el-option v-for="item in calendarTypeOptions" :key="item.key" :label="item.display_name+'('+item.key+')'" :value="item.key"/>
-      </el-select>
-      <el-select v-model="listQuery.sort" style="width: 140px" class="filter-item" @change="handleFilter">
-        <el-option v-for="item in sortOptions" :key="item.key" :label="item.label" :value="item.key"/>
-      </el-select>
-      <el-button v-waves class="filter-item" type="primary" icon="el-icon-search" @click="handleFilter">{{  }}</el-button> -->
+      <el-input placeholder="国资编号" v-model="listQuery.unifiedNum" style="width: 200px;" class="filter-item" @keyup.enter.native="handleFilter"/>
+
+      <el-button class="filter-item" type="primary" icon="el-icon-search" @click="handleFilter">查询</el-button>
       <el-button class="filter-item" style="margin-left: 10px;" type="primary" icon="el-icon-edit" @click="handleCreate">新增</el-button>
-      <!-- <el-button v-waves :loading="downloadLoading" class="filter-item" type="primary" icon="el-icon-download" @click="handleDownload">{{  }}</el-button> -->
+      <el-button v-waves :loading="downloadLoading" class="filter-item" type="primary" icon="el-icon-download" @click="handleDownload">导出</el-button>
     </div>
     <el-table
       v-loading="listLoading"
@@ -82,7 +74,7 @@
       <el-table-column align="center" prop="startDate" label="启用时间" width="200">
         <template slot-scope="scope">
           <i class="el-icon-time"/>
-          <span>{{ scope.row.startDate | parseTime('{y}-{m}-{d} {h}:{i}') }}</span>
+          <span>{{ scope.row.startDate | parseTime('{y}-{m}-{d}') }}</span>
         </template>
       </el-table-column>
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
@@ -101,9 +93,11 @@
 import { getList, deleteItem } from '@/api/device'
 import Pagination from '@/components/Pagination' // Secondary package based on el-pagination
 import { parseTime } from '@/utils'
+import waves from '@/directive/waves' // Waves directive
 
 export default {
   components: { Pagination },
+  directives: { waves },
   filters: {
     statusFilter(status) {
       const statusMap = {
@@ -123,11 +117,9 @@ export default {
       listQuery: {
         page: 1,
         size: 20,
-        importance: undefined,
-        title: undefined,
-        type: undefined,
-        sort: '+id'
-      },      
+        unifiedNum: "",
+      },
+      downloadLoading: false  
     }
   },
   created() {
@@ -143,16 +135,56 @@ export default {
         this.listLoading = false
       })
     },
-    handleDelete(row) {
-      this.listLoading = true
-      deleteItem(row).then(response =>{
-         this.$message({
-            type: 'success',
-            message: '删除成功！'
-          });
-        this.listLoading = false
-        this.fetchData()
+    handleFilter() {
+      this.listQuery.page = 1
+      this.fetchData()
+    },
+    handleDownload() {   
+      this.downloadLoading = true
+      import('@/vendor/Export2Excel').then(excel => {
+        const tHeader = ['国资编号','启用日期']
+        const filterVal = ['unifiedNum','startDate']
+        //const data = Object.assign({}, this.list)
+        const data = this.formatJson(filterVal, this.list)
+        console.log("data--",data)
+        excel.export_json_to_excel({
+          header: tHeader,
+          data,
+          filename: 'table-list'
+        })
+        this.downloadLoading = false
       })
+    },
+    formatJson(filterVal, jsonData) {
+      return jsonData.map(v => filterVal.map(j => {
+        //if (j === 'id') {
+          //return parseTime(v[j])
+        //} else {
+          return v[j]
+        //}
+      }))
+    },    
+    handleDelete(row) {
+        this.$confirm('确定删除, 是否继续?', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }).then(() => {
+            this.listLoading = true
+            deleteItem(row).then(response =>{
+              this.$message({
+                  type: 'success',
+                  message: '删除成功！'
+                });
+              this.listLoading = false
+              this.fetchData()
+            })
+        }).catch(() => {
+          this.$message({
+            type: 'info',
+            message: '取消删除！'
+          });          
+        });      
     },
     handleCreate() {
       this.$router.push({ name: 'SpecPcAdd', params: { item: {},isEdit: false}})
